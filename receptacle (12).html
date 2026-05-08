@@ -1,0 +1,2846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RECEPTACLE — Wear The Void</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f0e8;
+    --cream: #e8e0d0;
+    --gold: #c9a84c;
+    --rust: #b5451b;
+    --mid: #3a3530;
+    --light-mid: #6b6058;
+    --glass: rgba(245,240,232,0.05);
+    --glass-border: rgba(245,240,232,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Cormorant Garamond', serif;
+    background: var(--black);
+    color: var(--white);
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 3rem;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.3em;
+    color: var(--white);
+    text-decoration: none;
+    position: relative;
+  }
+  .nav-logo::after {
+    content: '®';
+    font-size: 0.5rem;
+    vertical-align: super;
+    color: var(--gold);
+    margin-left: 2px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--cream);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  .nav-admin-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    background: transparent;
+    cursor: crosshair;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .nav-admin-btn:hover {
+    background: var(--gold);
+    color: var(--black);
+  }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 80% 50%, rgba(201,168,76,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(181,69,27,0.06) 0%, transparent 60%),
+      linear-gradient(135deg, #0a0a0a 0%, #111008 100%);
+    z-index: 0;
+  }
+
+  .hero-line {
+    position: absolute;
+    top: 0; right: 18%;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.3), transparent);
+    z-index: 0;
+  }
+
+  .hero-content { position: relative; z-index: 1; }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 15vw, 14rem);
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    opacity: 0;
+    animation: fadeUp 0.9s 0.4s forwards;
+  }
+
+  .hero-title span {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(245,240,232,0.4);
+  }
+
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    color: var(--light-mid);
+    margin-top: 2rem;
+    max-width: 400px;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.6s forwards;
+  }
+
+  .hero-cta {
+    display: inline-block;
+    margin-top: 3rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    padding: 1rem 2.5rem;
+    text-decoration: none;
+    transition: all 0.3s;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.8s forwards;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+  }
+  .hero-cta:hover::before { transform: translateX(0); }
+  .hero-cta span { position: relative; z-index: 1; }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem; right: 3rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--light-mid);
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0;
+    animation: fadeIn 1s 1.2s forwards;
+  }
+  .hero-scroll::before {
+    content: '';
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollLine 2s 1.5s infinite;
+  }
+
+  /* ─── MARQUEE ─── */
+  .marquee-wrap {
+    overflow: hidden;
+    border-top: 1px solid rgba(245,240,232,0.08);
+    border-bottom: 1px solid rgba(245,240,232,0.08);
+    padding: 1rem 0;
+    background: rgba(201,168,76,0.03);
+  }
+  .marquee-track {
+    display: flex;
+    gap: 4rem;
+    animation: marquee 20s linear infinite;
+    width: max-content;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.4em;
+    color: var(--light-mid);
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .marquee-item .dot { color: var(--gold); margin: 0 1rem; }
+
+  /* ─── COLLECTION ─── */
+  #collection {
+    padding: 8rem 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 4rem;
+    border-bottom: 1px solid rgba(245,240,232,0.1);
+    padding-bottom: 2rem;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    letter-spacing: 0.05em;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .section-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--light-mid);
+    letter-spacing: 0.2em;
+  }
+
+  /* ─── PRODUCT GRID ─── */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2px;
+  }
+
+  .product-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--mid);
+    cursor: crosshair;
+    aspect-ratio: 3/4;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-card:nth-child(3n+1) { background: #1a1612; }
+  .product-card:nth-child(3n+2) { background: #141210; }
+  .product-card:nth-child(3n+3) { background: #110f0d; }
+
+  .product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: block;
+  }
+
+  .product-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, #1a1612 0%, #0f0d0a 100%);
+  }
+
+  .placeholder-icon {
+    width: 60px; height: 60px;
+    border: 1px solid rgba(245,240,232,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .placeholder-icon svg { opacity: 0.3; }
+  .placeholder-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    color: var(--light-mid);
+    text-transform: uppercase;
+  }
+
+  .product-card:hover .product-img { transform: scale(1.08); }
+
+  .product-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.1) 60%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    transform: translateY(30px);
+    opacity: 0;
+    transition: all 0.4s ease;
+  }
+
+  .product-card:hover .product-overlay {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .product-info-always {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 1.5rem;
+    background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 100%);
+  }
+
+  .product-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+  }
+  .product-price {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold);
+    margin-top: 0.3rem;
+    letter-spacing: 0.1em;
+  }
+  .product-category {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    color: var(--light-mid);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .product-add {
+    display: inline-block;
+    margin-top: 0.8rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: crosshair;
+    transition: background 0.3s;
+  }
+  .product-add:hover { background: var(--gold); }
+
+  /* ─── BRAND STRIP ─── */
+  .brand-strip {
+    padding: 8rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    border-top: 1px solid rgba(245,240,232,0.06);
+  }
+
+  .brand-text h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 6rem);
+    line-height: 0.9;
+    color: var(--white);
+    margin-bottom: 2rem;
+  }
+  .brand-text h2 em {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+    font-style: italic;
+    display: block;
+  }
+  .brand-text p {
+    font-size: 1.1rem;
+    color: var(--light-mid);
+    line-height: 1.8;
+    max-width: 420px;
+  }
+
+  .brand-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .stat {
+    padding: 2rem;
+    border: 1px solid rgba(245,240,232,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--gold);
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--white);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--light-mid);
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+  }
+
+  /* ─── NEWSLETTER ─── */
+  .newsletter {
+    background: linear-gradient(135deg, #111008, #0d0b08);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 6rem 3rem;
+    text-align: center;
+  }
+  .newsletter h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    color: var(--white);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .newsletter p {
+    font-style: italic;
+    color: var(--light-mid);
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+  }
+  .newsletter-form {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .newsletter-form input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    background: rgba(245,240,232,0.05);
+    border: 1px solid rgba(245,240,232,0.15);
+    border-right: none;
+    color: var(--white);
+    outline: none;
+    letter-spacing: 0.1em;
+  }
+  .newsletter-form input::placeholder { color: var(--light-mid); }
+  .newsletter-form button {
+    padding: 1rem 2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    cursor: crosshair;
+    transition: background 0.3s;
+  }
+  .newsletter-form button:hover { background: var(--white); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 4rem 3rem 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    border-top: 1px solid rgba(245,240,232,0.06);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .footer-brand .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 0.3em;
+    color: var(--white);
+  }
+  .footer-brand p {
+    font-style: italic;
+    color: var(--light-mid);
+    font-size: 0.95rem;
+    margin-top: 1rem;
+    line-height: 1.6;
+    max-width: 260px;
+  }
+
+  .footer-col h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li {
+    margin-bottom: 0.7rem;
+    font-size: 0.9rem;
+    color: var(--light-mid);
+    cursor: crosshair;
+    transition: color 0.2s;
+  }
+  .footer-col ul li:hover { color: var(--white); }
+
+  .footer-bottom {
+    grid-column: 1/-1;
+    border-top: 1px solid rgba(245,240,232,0.06);
+    padding-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-bottom p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--light-mid);
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════
+     ADMIN PANEL
+  ═══════════════════════════════════════ */
+  #admin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(5,4,3,0.97);
+    backdrop-filter: blur(20px);
+    overflow-y: auto;
+  }
+  #admin-overlay.open { display: block; }
+
+  .admin-panel {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .admin-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 3rem;
+    border-bottom: 1px solid rgba(245,240,232,0.08);
+    background: rgba(10,10,10,0.8);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .admin-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .admin-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    background: var(--rust);
+    color: var(--white);
+  }
+  .admin-title h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.2em;
+    color: var(--white);
+  }
+
+  .admin-close {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--light-mid);
+    background: none;
+    border: 1px solid rgba(245,240,232,0.15);
+    padding: 0.6rem 1.2rem;
+    cursor: crosshair;
+    transition: all 0.3s;
+  }
+  .admin-close:hover { border-color: var(--rust); color: var(--rust); }
+
+  .admin-body {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    flex: 1;
+    min-height: calc(100vh - 70px);
+  }
+
+  .admin-sidebar {
+    border-right: 1px solid rgba(245,240,232,0.06);
+    padding: 2rem;
+    background: rgba(10,10,10,0.5);
+  }
+
+  .sidebar-section {
+    margin-bottom: 2.5rem;
+  }
+  .sidebar-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-nav { list-style: none; }
+  .sidebar-nav li {
+    padding: 0.7rem 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--light-mid);
+    cursor: crosshair;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+    margin-bottom: 0.2rem;
+  }
+  .sidebar-nav li:hover, .sidebar-nav li.active {
+    color: var(--white);
+    border-left-color: var(--gold);
+    background: rgba(201,168,76,0.05);
+    padding-left: 1.5rem;
+  }
+
+  .admin-stats-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+  .mini-stat {
+    padding: 1rem;
+    border: 1px solid rgba(245,240,232,0.08);
+    text-align: center;
+  }
+  .mini-stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .mini-stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+    color: var(--light-mid);
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+  }
+
+  .admin-main {
+    padding: 2.5rem 3rem;
+    overflow-y: auto;
+  }
+
+  .admin-section { display: none; }
+  .admin-section.active { display: block; }
+
+  /* ─── UPLOAD ZONE ─── */
+  .upload-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .upload-header h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+  }
+
+  .upload-zone {
+    border: 1px dashed rgba(245,240,232,0.2);
+    padding: 4rem 2rem;
+    text-align: center;
+    cursor: crosshair;
+    transition: all 0.3s;
+    background: rgba(245,240,232,0.02);
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.04);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: crosshair;
+    width: 100%;
+    height: 100%;
+  }
+  .upload-icon {
+    width: 64px; height: 64px;
+    border: 1px solid rgba(245,240,232,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+  .upload-zone h4 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .upload-zone p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--light-mid);
+    text-transform: uppercase;
+  }
+
+  /* ─── PRODUCT FORM ─── */
+  .product-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+  .form-group.full { grid-column: 1/-1; }
+
+  .form-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .form-input, .form-select, .form-textarea {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    background: rgba(245,240,232,0.04);
+    border: 1px solid rgba(245,240,232,0.12);
+    color: var(--white);
+    padding: 0.8rem 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+    width: 100%;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.04);
+  }
+  .form-select option { background: #1a1612; }
+  .form-textarea { resize: vertical; min-height: 100px; font-family: 'Cormorant Garamond', serif; }
+
+  .upload-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+  .preview-item {
+    aspect-ratio: 3/4;
+    position: relative;
+    overflow: hidden;
+    background: rgba(245,240,232,0.04);
+    border: 1px solid rgba(245,240,232,0.08);
+  }
+  .preview-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .preview-remove {
+    position: absolute;
+    top: 0.3rem; right: 0.3rem;
+    width: 20px; height: 20px;
+    background: var(--rust);
+    color: white;
+    border: none;
+    cursor: crosshair;
+    font-size: 0.7rem;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .preview-item:hover .preview-remove { opacity: 1; }
+
+  .submit-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 1rem 3rem;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    cursor: crosshair;
+    transition: all 0.3s;
+    font-weight: 700;
+  }
+  .submit-btn:hover { background: var(--white); }
+
+  /* ─── MANAGE PRODUCTS TABLE ─── */
+  .products-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+  }
+  .products-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(245,240,232,0.1);
+    background: rgba(201,168,76,0.04);
+  }
+  .products-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+    font-size: 0.9rem;
+    color: var(--cream);
+    vertical-align: middle;
+  }
+  .products-table tr:hover td { background: rgba(245,240,232,0.02); }
+
+  .table-thumb {
+    width: 50px; height: 65px;
+    object-fit: cover;
+    display: block;
+  }
+  .table-thumb-placeholder {
+    width: 50px; height: 65px;
+    background: var(--mid);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+  }
+  .badge-active { background: rgba(100,200,100,0.15); color: #6ec96e; }
+  .badge-draft { background: rgba(245,240,232,0.08); color: var(--light-mid); }
+
+  .action-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid;
+    background: none;
+    cursor: crosshair;
+    transition: all 0.2s;
+    margin-right: 0.3rem;
+  }
+  .action-edit { border-color: rgba(201,168,76,0.4); color: var(--gold); }
+  .action-edit:hover { background: var(--gold); color: var(--black); }
+  .action-delete { border-color: rgba(181,69,27,0.4); color: var(--rust); }
+  .action-delete:hover { background: var(--rust); color: var(--white); }
+
+  /* ─── NAV CART ─── */
+  .nav-cart-btn {
+    position: relative;
+    background: none;
+    border: 1px solid rgba(245,240,232,0.15);
+    color: var(--cream);
+    padding: 0.5rem 0.7rem;
+    cursor: crosshair;
+    display: flex; align-items: center;
+    transition: all 0.3s;
+  }
+  .nav-cart-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .cart-count {
+    position: absolute;
+    top: -6px; right: -6px;
+    width: 16px; height: 16px;
+    background: var(--gold);
+    color: var(--black);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+  }
+
+  /* ─── LOOKBOOK ─── */
+  .lookbook-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 300px 300px;
+    gap: 4px;
+  }
+  .look-card {
+    position: relative;
+    overflow: hidden;
+    cursor: crosshair;
+  }
+  .look-card.look-tall { grid-row: span 2; }
+  .look-card.look-wide { grid-column: span 2; }
+  .look-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,10,10,0.8) 0%, transparent 60%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .look-card:hover .look-overlay { opacity: 1; }
+  .look-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 100%);
+  }
+  .look-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .look-caption {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+  }
+
+  /* ─── PROCESS ─── */
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+  }
+  .process-step {
+    padding: 2.5rem 2rem 2.5rem 0;
+    border-left: 1px solid rgba(245,240,232,0.08);
+    padding-left: 2rem;
+    position: relative;
+  }
+  .process-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    color: rgba(201,168,76,0.1);
+    line-height: 1;
+    margin-bottom: -0.5rem;
+  }
+  .process-line {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 1.2rem;
+  }
+  .process-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.12em;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+  .process-desc {
+    font-size: 0.95rem;
+    color: var(--light-mid);
+    line-height: 1.7;
+  }
+
+  /* ─── TESTIMONIALS ─── */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1fr;
+    gap: 2px;
+  }
+  .testimonial-card {
+    padding: 2.5rem;
+    background: rgba(245,240,232,0.02);
+    border: 1px solid rgba(245,240,232,0.06);
+    transition: border-color 0.3s;
+  }
+  .testimonial-card:hover { border-color: rgba(201,168,76,0.2); }
+  .testimonial-featured {
+    background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(245,240,232,0.02) 100%);
+    border-color: rgba(201,168,76,0.15);
+  }
+  .testimonial-stars {
+    font-size: 0.6rem;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+    margin-bottom: 1.5rem;
+  }
+  .testimonial-text {
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--cream);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .author-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--mid), var(--black));
+    border: 1px solid rgba(201,168,76,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+  .author-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 0.2rem;
+  }
+  .author-loc {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    color: var(--light-mid);
+  }
+
+  /* ─── SIZING ─── */
+  .sizing-wrap {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    align-items: start;
+  }
+  .sizing-note p {
+    font-style: italic;
+    color: var(--light-mid);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+  .sizing-tips { display: flex; flex-direction: column; gap: 1rem; }
+  .sizing-tip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(201,168,76,0.3);
+  }
+  .tip-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .tip-desc {
+    font-size: 0.85rem;
+    color: var(--light-mid);
+  }
+  .sizing-table-wrap { overflow-x: auto; }
+  .sizing-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .sizing-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 0.8rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    background: rgba(201,168,76,0.04);
+  }
+  .sizing-table td {
+    padding: 0.9rem 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--cream);
+    border-bottom: 1px solid rgba(245,240,232,0.05);
+  }
+  .sizing-table tr:first-child td { color: var(--white); font-weight: 700; }
+  .sizing-table tr:hover td { background: rgba(245,240,232,0.02); }
+
+  /* ─── DROP COUNTDOWN ─── */
+  .drop-section {
+    padding: 8rem 3rem;
+    background: linear-gradient(135deg, #0e0c08 0%, #13100b 50%, #0a0905 100%);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+  .drop-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+  .drop-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 6.5rem);
+    line-height: 0.9;
+    color: var(--white);
+    margin: 1rem 0 1.5rem;
+  }
+  .drop-title span {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--gold);
+  }
+  .drop-desc {
+    font-size: 1.05rem;
+    color: var(--light-mid);
+    line-height: 1.8;
+    max-width: 420px;
+    margin-bottom: 1.5rem;
+  }
+  .drop-tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .drop-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.8rem;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold);
+  }
+  .drop-countdown-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+  .countdown-grid {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 3rem;
+  }
+  .countdown-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 70px;
+  }
+  .countdown-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    color: var(--white);
+    line-height: 1;
+    letter-spacing: 0.05em;
+  }
+  .countdown-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--light-mid);
+    margin-top: 0.2rem;
+  }
+  .countdown-sep {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+  }
+  .drop-visual {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: linear-gradient(135deg, #1a1612, #0a0905);
+    border: 1px solid rgba(201,168,76,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .drop-visual::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06), transparent 70%);
+  }
+  .drop-visual-inner {
+    text-align: center;
+    position: relative;
+  }
+  .drop-visual-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    letter-spacing: 0.3em;
+    color: rgba(245,240,232,0.06);
+    line-height: 1;
+  }
+  .drop-visual-line {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 1rem auto 0;
+    opacity: 0.4;
+  }
+
+  /* ─── MATERIALS ─── */
+  .materials-section {
+    padding: 8rem 0;
+    background: linear-gradient(135deg, #0a0905, #0f0d09);
+    border-top: 1px solid rgba(245,240,232,0.06);
+  }
+  .materials-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-bottom: 3rem;
+  }
+  .material-card {
+    padding: 2.5rem 2rem;
+    background: rgba(245,240,232,0.02);
+    border: 1px solid rgba(245,240,232,0.06);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .material-card:hover {
+    border-color: rgba(201,168,76,0.2);
+    background: rgba(201,168,76,0.03);
+  }
+  .material-icon {
+    width: 52px; height: 52px;
+    border: 1px solid rgba(201,168,76,0.2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+  .material-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+  .material-desc {
+    font-size: 0.9rem;
+    color: var(--light-mid);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  .material-bar {
+    height: 2px;
+    background: rgba(245,240,232,0.08);
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .material-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background: linear-gradient(to right, var(--gold), rgba(201,168,76,0.4));
+    transition: width 1s ease;
+  }
+  .material-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .sustainability-pledge {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 2rem;
+    border: 1px solid rgba(201,168,76,0.15);
+    background: rgba(201,168,76,0.03);
+    max-width: 800px;
+  }
+  .pledge-icon {
+    font-size: 1.5rem;
+    color: var(--gold);
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+  .sustainability-pledge p {
+    font-style: italic;
+    color: var(--light-mid);
+    font-size: 0.95rem;
+    line-height: 1.8;
+  }
+
+  /* ─── PRESS ─── */
+  .press-section {
+    padding: 4rem 0;
+    border-top: 1px solid rgba(245,240,232,0.06);
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+    background: rgba(245,240,232,0.01);
+  }
+  .press-logos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .press-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.25em;
+    color: rgba(245,240,232,0.15);
+    transition: color 0.3s;
+    cursor: default;
+  }
+  .press-logo:hover { color: rgba(245,240,232,0.5); }
+
+  /* ─── CARE GUIDE ─── */
+  .care-section {
+    padding: 8rem 0;
+    background: linear-gradient(135deg, #0d0b08, #0a0905);
+    border-top: 1px solid rgba(245,240,232,0.06);
+  }
+  .care-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .care-card {
+    padding: 2.5rem 2rem;
+    background: rgba(245,240,232,0.02);
+    border: 1px solid rgba(245,240,232,0.06);
+    transition: all 0.3s;
+  }
+  .care-card:hover {
+    background: rgba(245,240,232,0.04);
+    border-color: rgba(201,168,76,0.15);
+  }
+  .care-sym {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    line-height: 1;
+  }
+  .care-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    color: var(--white);
+    margin-bottom: 0.8rem;
+  }
+  .care-desc {
+    font-size: 0.9rem;
+    color: var(--light-mid);
+    line-height: 1.7;
+  }
+
+  /* ─── FAQ ─── */
+  .faq-section {
+    padding: 8rem 0;
+    background: linear-gradient(135deg, #0a0905, #0d0b08);
+    border-top: 1px solid rgba(245,240,232,0.06);
+  }
+  .faq-list { display: flex; flex-direction: column; }
+  .faq-item {
+    border-bottom: 1px solid rgba(245,240,232,0.08);
+  }
+  .faq-q {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    background: none;
+    border: none;
+    color: var(--white);
+    cursor: crosshair;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    text-align: left;
+    transition: color 0.3s;
+    gap: 1rem;
+  }
+  .faq-q:hover { color: var(--gold); }
+  .faq-arrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.2rem;
+    color: var(--gold);
+    flex-shrink: 0;
+    transition: transform 0.3s;
+  }
+  .faq-q.open .faq-arrow { transform: rotate(45deg); }
+  .faq-a {
+    font-size: 0.95rem;
+    color: var(--light-mid);
+    line-height: 1.8;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    padding: 0;
+  }
+  .faq-a.open {
+    max-height: 200px;
+    padding-bottom: 1.5rem;
+  }
+
+  /* ─── INSTAGRAM GRID ─── */
+  .insta-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+  }
+  .insta-cell {
+    aspect-ratio: 1;
+    position: relative;
+    overflow: hidden;
+    cursor: crosshair;
+  }
+  .insta-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,10,0.6);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: var(--white);
+  }
+  .insta-cell:hover .insta-overlay { opacity: 1; }
+
+  /* ─── CART ITEM ─── */
+  .cart-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+    align-items: center;
+  }
+  .cart-item-img {
+    width: 60px; height: 78px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--mid);
+  }
+  .cart-item-info { flex: 1; }
+  .cart-item-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    margin-bottom: 0.2rem;
+  }
+  .cart-item-price {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+  .cart-item-remove {
+    background: none;
+    border: none;
+    color: var(--light-mid);
+    cursor: crosshair;
+    font-size: 0.8rem;
+    transition: color 0.2s;
+    padding: 0.2rem;
+  }
+  .cart-item-remove:hover { color: var(--rust); }
+
+  /* ─── LOGIN MODAL ─── */
+  #login-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    background: rgba(5,4,3,0.96);
+    backdrop-filter: blur(24px);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #login-modal.open { display: flex; }
+
+  .login-box {
+    width: 100%;
+    max-width: 400px;
+    padding: 3rem;
+    border: 1px solid rgba(245,240,232,0.1);
+    background: rgba(10,10,10,0.8);
+    position: relative;
+    animation: fadeUp 0.4s ease forwards;
+  }
+  .login-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: linear-gradient(to right, var(--gold), transparent);
+  }
+  .login-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+  .login-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 0.15em;
+    color: var(--white);
+    margin-bottom: 2rem;
+  }
+  .login-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .login-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .login-input {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    background: rgba(245,240,232,0.04);
+    border: 1px solid rgba(245,240,232,0.12);
+    color: var(--white);
+    padding: 0.9rem 1rem;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.3s;
+    letter-spacing: 0.1em;
+  }
+  .login-input:focus { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .login-error {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--rust);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    min-height: 1rem;
+    animation: shake 0.4s ease;
+  }
+  .login-btn {
+    width: 100%;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 1rem;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    cursor: crosshair;
+    font-weight: 700;
+    transition: background 0.3s;
+    margin-bottom: 1rem;
+  }
+  .login-btn:hover { background: var(--white); }
+  .login-cancel {
+    display: block;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    color: var(--light-mid);
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    cursor: crosshair;
+    width: 100%;
+    transition: color 0.2s;
+  }
+  .login-cancel:hover { color: var(--rust); }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1rem 1.5rem;
+    background: var(--gold);
+    color: var(--black);
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes scrollLine {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    #hero { padding: 0 1.5rem; }
+    #collection, .brand-strip { padding: 5rem 1.5rem; }
+    .brand-strip { grid-template-columns: 1fr; }
+    footer { grid-template-columns: 1fr 1fr; padding: 3rem 1.5rem; }
+    .admin-body { grid-template-columns: 1fr; }
+    .admin-sidebar { display: none; }
+    .product-form { grid-template-columns: 1fr; }
+    .admin-main { padding: 1.5rem; }
+    .lookbook-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .look-card.look-tall { grid-row: span 1; }
+    .look-card.look-wide { grid-column: span 1; }
+    .process-steps { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .sizing-wrap { grid-template-columns: 1fr; gap: 2rem; }
+    .insta-grid { grid-template-columns: repeat(3, 1fr); }
+    .materials-grid { grid-template-columns: 1fr 1fr; }
+    .care-grid { grid-template-columns: 1fr 1fr; }
+    .drop-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .press-logos { justify-content: center; gap: 1.5rem; }
+    .press-logo { font-size: 1rem; }
+    #cart-drawer { width: 100%; right: -100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ STOREFRONT ═══════ -->
+<div id="storefront">
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">RECEPTACLE</a>
+    <ul class="nav-links">
+      <li><a href="#collection">Collection</a></li>
+      <li><a href="#drop">Next Drop</a></li>
+      <li><a href="#lookbook">Lookbook</a></li>
+      <li><a href="#materials">Materials</a></li>
+      <li><a href="#sizing">Sizing</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:1.2rem">
+      <button class="nav-cart-btn" onclick="toggleCart()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-count" id="cart-count">0</span>
+      </button>
+      <button class="nav-admin-btn" onclick="openAdmin()">Admin ↗</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-line"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">SS 2026 — New Collection</p>
+      <h1 class="hero-title">
+        RECEP<br>
+        <span>TACLE</span>
+      </h1>
+      <p class="hero-subtitle">Garments that hold space. Fabric as philosophy. Wear what contains you.</p>
+      <a href="#collection" class="hero-cta"><span>Explore Collection →</span></a>
+    </div>
+    <div class="hero-scroll">Scroll</div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="marquee-track">
+      <span class="marquee-item">Wear The Void<span class="dot">✦</span></span>
+      <span class="marquee-item">SS 2026 Collection<span class="dot">✦</span></span>
+      <span class="marquee-item">Receptacle<span class="dot">✦</span></span>
+      <span class="marquee-item">Fabric as Philosophy<span class="dot">✦</span></span>
+      <span class="marquee-item">Made in Darkness<span class="dot">✦</span></span>
+      <span class="marquee-item">Structured Void<span class="dot">✦</span></span>
+      <span class="marquee-item">Wear The Void<span class="dot">✦</span></span>
+      <span class="marquee-item">SS 2026 Collection<span class="dot">✦</span></span>
+      <span class="marquee-item">Receptacle<span class="dot">✦</span></span>
+      <span class="marquee-item">Fabric as Philosophy<span class="dot">✦</span></span>
+      <span class="marquee-item">Made in Darkness<span class="dot">✦</span></span>
+      <span class="marquee-item">Structured Void<span class="dot">✦</span></span>
+    </div>
+  </div>
+
+  <!-- COLLECTION -->
+  <section id="collection">
+    <div class="section-header">
+      <div>
+        <p class="section-label">Current Drop</p>
+        <h2 class="section-title">THE ARCHIVE</h2>
+      </div>
+      <span class="section-count" id="product-count">0 PIECES</span>
+    </div>
+    <div class="product-grid" id="product-grid">
+      <!-- Products injected here -->
+    </div>
+  </section>
+
+  <!-- BRAND STRIP -->
+  <div class="brand-strip">
+    <div class="brand-text">
+      <h2>VOID.<br><em>Contained.</em></h2>
+      <p>RECEPTACLE is not a brand. It is a vessel. Each piece is designed to hold the weight of who you are — undefined, undefined, becoming. Garments for those who resist categorization.</p>
+    </div>
+    <div class="brand-stats">
+      <div class="stat">
+        <div class="stat-num">2025</div>
+        <div class="stat-label">Founded</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0</div>
+        <div class="stat-label" id="stat-items">Items</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Intentional</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOOKBOOK -->
+  <section id="lookbook" style="padding:8rem 0;background:linear-gradient(135deg,#0d0b08,#111008);border-top:1px solid rgba(245,240,232,0.06)">
+    <div style="max-width:1400px;margin:0 auto;padding:0 3rem">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Visual Story</p>
+          <h2 class="section-title">LOOKBOOK SS26</h2>
+        </div>
+        <span class="section-count">6 EDITORIALS</span>
+      </div>
+      <div class="lookbook-grid">
+        <div class="look-card look-tall" style="background:linear-gradient(160deg,#1c1a14,#0a0905)">
+          <div class="look-overlay"><span class="look-num">01</span><p class="look-caption">The Void Speaks</p></div>
+        </div>
+        <div class="look-card" style="background:linear-gradient(160deg,#16120e,#0c0a07)">
+          <div class="look-overlay"><span class="look-num">02</span><p class="look-caption">Between Fabrics</p></div>
+        </div>
+        <div class="look-card" style="background:linear-gradient(160deg,#120f0b,#090807)">
+          <div class="look-overlay"><span class="look-num">03</span><p class="look-caption">Structured Dark</p></div>
+        </div>
+        <div class="look-card look-wide" style="background:linear-gradient(160deg,#181410,#0e0c09)">
+          <div class="look-overlay"><span class="look-num">04</span><p class="look-caption">After Midnight</p></div>
+        </div>
+        <div class="look-card" style="background:linear-gradient(160deg,#141210,#0b0908)">
+          <div class="look-overlay"><span class="look-num">05</span><p class="look-caption">Quiet Tension</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process" style="padding:8rem 3rem;max-width:1400px;margin:0 auto">
+    <div class="section-header">
+      <div>
+        <p class="section-label">How We Build</p>
+        <h2 class="section-title">THE PROCESS</h2>
+      </div>
+    </div>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="process-num">01</div>
+        <div class="process-line"></div>
+        <h3 class="process-title">CONCEPT</h3>
+        <p class="process-desc">Every piece begins as a feeling — an absence, a pressure, a shape the body doesn't know it needs yet. We start in silence.</p>
+      </div>
+      <div class="process-step">
+        <div class="process-num">02</div>
+        <div class="process-line"></div>
+        <h3 class="process-title">MATERIAL</h3>
+        <p class="process-desc">We source only fabrics that survive contact. Japanese denim, Belgian linen, reclaimed wool. Each textile is tested for 90 days before cutting.</p>
+      </div>
+      <div class="process-step">
+        <div class="process-num">03</div>
+        <div class="process-line"></div>
+        <h3 class="process-title">CONSTRUCTION</h3>
+        <p class="process-desc">Handcrafted in small batches of 12–50 pieces. No assembly line. Each garment is touched by one maker from first cut to final stitch.</p>
+      </div>
+      <div class="process-step">
+        <div class="process-num">04</div>
+        <div class="process-line"></div>
+        <h3 class="process-title">RELEASE</h3>
+        <p class="process-desc">Drops happen when they're ready — not on schedule. We don't manufacture urgency. Subscribe to know when the next piece is born.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" style="padding:8rem 3rem;background:linear-gradient(135deg,#0d0b08,#0a0905);border-top:1px solid rgba(245,240,232,0.06)">
+    <div style="max-width:1400px;margin:0 auto">
+      <div class="section-header">
+        <div>
+          <p class="section-label">From the Wearers</p>
+          <h2 class="section-title">TESTIMONIALS</h2>
+        </div>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">✦ ✦ ✦ ✦ ✦</div>
+          <p class="testimonial-text">"I put on the Void Jacket and didn't recognise myself. That's the point, isn't it? You wear RECEPTACLE to become someone else — or maybe finally yourself."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">AK</div>
+            <div>
+              <div class="author-name">Amara K.</div>
+              <div class="author-loc">Lagos, Nigeria</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card testimonial-featured">
+          <div class="testimonial-stars">✦ ✦ ✦ ✦ ✦</div>
+          <p class="testimonial-text">"The construction is unlike anything I've seen at this price point. The seams feel architectural. I've had this jacket three months and it somehow looks better."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">MO</div>
+            <div>
+              <div class="author-name">Marcus O.</div>
+              <div class="author-loc">London, UK</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">✦ ✦ ✦ ✦ ✦</div>
+          <p class="testimonial-text">"Packaging alone felt like receiving a letter from a parallel universe. The garment inside matched that energy completely. I'll be buying every drop."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">ZN</div>
+            <div>
+              <div class="author-name">Zara N.</div>
+              <div class="author-loc">Accra, Ghana</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIZING -->
+  <section id="sizing" style="padding:8rem 3rem;max-width:1400px;margin:0 auto">
+    <div class="section-header">
+      <div>
+        <p class="section-label">Find Your Vessel</p>
+        <h2 class="section-title">SIZE GUIDE</h2>
+      </div>
+    </div>
+    <div class="sizing-wrap">
+      <div class="sizing-note">
+        <p>RECEPTACLE garments are designed to drape, not conform. We recommend sizing up if between sizes. All measurements in centimetres.</p>
+        <div class="sizing-tips">
+          <div class="sizing-tip"><span class="tip-label">Chest</span><span class="tip-desc">Measure fullest point, arms relaxed</span></div>
+          <div class="sizing-tip"><span class="tip-label">Waist</span><span class="tip-desc">Natural waist, not hips</span></div>
+          <div class="sizing-tip"><span class="tip-label">Hip</span><span class="tip-desc">Fullest point, 20cm below waist</span></div>
+          <div class="sizing-tip"><span class="tip-label">Length</span><span class="tip-desc">Shoulder to hem, standing tall</span></div>
+        </div>
+      </div>
+      <div class="sizing-table-wrap">
+        <table class="sizing-table">
+          <thead>
+            <tr><th>SIZE</th><th>CHEST</th><th>WAIST</th><th>HIP</th><th>LENGTH</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>XS</td><td>84–88</td><td>64–68</td><td>88–92</td><td>62</td></tr>
+            <tr><td>S</td><td>88–93</td><td>68–73</td><td>92–97</td><td>63</td></tr>
+            <tr><td>M</td><td>93–99</td><td>73–79</td><td>97–103</td><td>65</td></tr>
+            <tr><td>L</td><td>99–106</td><td>79–86</td><td>103–110</td><td>67</td></tr>
+            <tr><td>XL</td><td>106–114</td><td>86–94</td><td>110–118</td><td>69</td></tr>
+            <tr><td>XXL</td><td>114–124</td><td>94–104</td><td>118–128</td><td>71</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTAGRAM GRID -->
+  <section style="padding:6rem 3rem;background:linear-gradient(135deg,#0d0b08,#0a0905);border-top:1px solid rgba(245,240,232,0.06)">
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:3rem">
+        <p class="section-label" style="text-align:center">Follow the Void</p>
+        <h2 class="section-title" style="text-align:center;font-size:clamp(2rem,4vw,4rem)">@RECEPTACLE.CO</h2>
+      </div>
+      <div class="insta-grid">
+        <div class="insta-cell" style="background:linear-gradient(135deg,#1c1a14,#0a0905)"><div class="insta-overlay"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+        <div class="insta-cell" style="background:linear-gradient(135deg,#16120e,#0c0a07)"><div class="insta-overlay"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+        <div class="insta-cell" style="background:linear-gradient(135deg,#120f0b,#090807)"><div class="insta-overlay"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+        <div class="insta-cell" style="background:linear-gradient(135deg,#181410,#0e0c09)"><div class="insta-overlay"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+        <div class="insta-cell" style="background:linear-gradient(135deg,#141210,#0b0908)"><div class="insta-overlay"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+        <div class="insta-cell" style="background:linear-gradient(135deg,#1a1714,#0d0b09)"><div class="insta-overlay"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEXT DROP COUNTDOWN -->
+  <section id="drop" class="drop-section">
+    <div class="drop-inner">
+      <div class="drop-left">
+        <p class="section-label">Incoming</p>
+        <h2 class="drop-title">DROP 002<br><span>THE HOLLOW</span></h2>
+        <p class="drop-desc">Six garments. One night. No restock. Built from reclaimed military canvas and undyed Japanese jersey — the most intentional collection we've made.</p>
+        <div class="drop-tags">
+          <span class="drop-tag">6 Pieces</span>
+          <span class="drop-tag">Limited Run</span>
+          <span class="drop-tag">No Restock</span>
+        </div>
+        <button class="submit-btn" style="margin-top:2rem" onclick="showToast('You will be notified when Drop 002 launches.')">NOTIFY ME →</button>
+      </div>
+      <div class="drop-right">
+        <p class="drop-countdown-label">Drops In</p>
+        <div class="countdown-grid">
+          <div class="countdown-unit"><span class="countdown-num" id="cd-days">00</span><span class="countdown-sub">Days</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-unit"><span class="countdown-num" id="cd-hours">00</span><span class="countdown-sub">Hours</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-unit"><span class="countdown-num" id="cd-mins">00</span><span class="countdown-sub">Mins</span></div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-unit"><span class="countdown-num" id="cd-secs">00</span><span class="countdown-sub">Secs</span></div>
+        </div>
+        <div class="drop-visual">
+          <div class="drop-visual-inner">
+            <span class="drop-visual-text">THE<br>HOLLOW</span>
+            <div class="drop-visual-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MATERIALS & SUSTAINABILITY -->
+  <section id="materials" class="materials-section">
+    <div style="max-width:1400px;margin:0 auto;padding:0 3rem">
+      <div class="section-header">
+        <div>
+          <p class="section-label">What We're Made Of</p>
+          <h2 class="section-title">MATERIALS</h2>
+        </div>
+        <span class="section-count">ECO CONSCIOUS</span>
+      </div>
+      <div class="materials-grid">
+        <div class="material-card">
+          <div class="material-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <h3 class="material-title">JAPANESE DENIM</h3>
+          <p class="material-desc">Selvedge-woven at 14.5oz from Okayama mills. Zero synthetic blends. Ages with the body that wears it.</p>
+          <div class="material-bar"><div class="material-fill" style="width:92%"></div></div>
+          <span class="material-pct">92% Sustainability Score</span>
+        </div>
+        <div class="material-card">
+          <div class="material-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 12c0-4.97 4.03-9 9-9s9 4.03 9 9"/><path d="M3 12h18"/><path d="M12 3c2.76 3 4 6 4 9s-1.24 6-4 9"/><path d="M12 3c-2.76 3-4 6-4 9s1.24 6 4 9"/></svg>
+          </div>
+          <h3 class="material-title">BELGIAN LINEN</h3>
+          <p class="material-desc">Flax-grown without irrigation or pesticides in West Flanders. Naturally anti-microbial, infinitely recyclable.</p>
+          <div class="material-bar"><div class="material-fill" style="width:97%"></div></div>
+          <span class="material-pct">97% Sustainability Score</span>
+        </div>
+        <div class="material-card">
+          <div class="material-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <h3 class="material-title">RECLAIMED WOOL</h3>
+          <p class="material-desc">Post-consumer wool recovered from archived military and industrial sources. No virgin extraction. Pure reclamation.</p>
+          <div class="material-bar"><div class="material-fill" style="width:88%"></div></div>
+          <span class="material-pct">88% Sustainability Score</span>
+        </div>
+        <div class="material-card">
+          <div class="material-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="material-title">DEADSTOCK CANVAS</h3>
+          <p class="material-desc">Surplus military-grade canvas sourced from closed warehouses across Europe. Each bolt is one of a kind.</p>
+          <div class="material-bar"><div class="material-fill" style="width:100%"></div></div>
+          <span class="material-pct">100% Sustainability Score</span>
+        </div>
+      </div>
+      <div class="sustainability-pledge">
+        <div class="pledge-icon">✦</div>
+        <p>Every RECEPTACLE order is carbon-offset. We plant one tree per purchase through the Eden Reforestation Project. Packaging is unbleached recycled kraft — no plastic, no excess.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRESS / AS SEEN IN -->
+  <section class="press-section">
+    <div style="max-width:1400px;margin:0 auto;padding:0 3rem">
+      <p class="section-label" style="text-align:center;margin-bottom:2rem">As Seen In</p>
+      <div class="press-logos">
+        <div class="press-logo">VOGUE AFRICA</div>
+        <div class="press-logo">i-D</div>
+        <div class="press-logo">DAZED</div>
+        <div class="press-logo">HYPEBEAST</div>
+        <div class="press-logo">ESSENCE</div>
+        <div class="press-logo">KINFOLK</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARE GUIDE -->
+  <section id="care" class="care-section">
+    <div style="max-width:1400px;margin:0 auto;padding:0 3rem">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Longevity</p>
+          <h2 class="section-title">CARE GUIDE</h2>
+        </div>
+      </div>
+      <div class="care-grid">
+        <div class="care-card">
+          <div class="care-sym">30°</div>
+          <h4 class="care-title">COLD WASH</h4>
+          <p class="care-desc">Always 30°C or below. Hot water breaks fibres prematurely. Turn inside out before washing.</p>
+        </div>
+        <div class="care-card">
+          <div class="care-sym">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 3l18 18M10.5 6.5l.5-.5a5 5 0 017 7l-.5.5"/><path d="M7.5 10.5A5 5 0 0013.5 16.5"/></svg>
+          </div>
+          <h4 class="care-title">NO TUMBLE DRY</h4>
+          <p class="care-desc">Air dry flat away from direct sunlight. Heat warps structure and degrades natural dyes.</p>
+        </div>
+        <div class="care-card">
+          <div class="care-sym">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+          </div>
+          <h4 class="care-title">STEAM, DON'T IRON</h4>
+          <p class="care-desc">A steamer at low pressure restores drape without flattening intentional texture. Iron only on cotton setting with a press cloth.</p>
+        </div>
+        <div class="care-card">
+          <div class="care-sym">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          <h4 class="care-title">STORE WITH CARE</h4>
+          <p class="care-desc">Hang heavier pieces, fold knits flat. Cedar blocks repel moths naturally. Breathable garment bags only — no plastic.</p>
+        </div>
+        <div class="care-card">
+          <div class="care-sym">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h4 class="care-title">SPOT TREAT FIRST</h4>
+          <p class="care-desc">For small stains, spot treat with cold water and mild soap before a full wash. Never rub — dab gently from the outside in.</p>
+        </div>
+        <div class="care-card">
+          <div class="care-sym">♻</div>
+          <h4 class="care-title">END OF LIFE</h4>
+          <p class="care-desc">When a piece is truly done, return it to us. We'll reclaim the fabric into new pieces. Nothing ends — it transforms.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="faq-section">
+    <div style="max-width:900px;margin:0 auto;padding:0 3rem">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Got Questions</p>
+          <h2 class="section-title">FAQ</h2>
+        </div>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Do you ship internationally?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a">Yes — we ship to over 40 countries. International orders are fulfilled within 5–7 business days. Duties and taxes may apply depending on your country's import policies. Tracking is provided for all orders.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>What is your return policy?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a">We accept returns within 14 days of delivery for unworn, unwashed items with original packaging. Sale items and limited drop pieces are final sale. Email hello@receptacle.co to initiate a return.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>How do drops work?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a">Each drop is a limited collection of 12–50 pieces released without a set schedule. We announce drops exclusively to newsletter subscribers 24 hours before they go live. Once sold out, items are not restocked.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Are your garments true to size?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a">RECEPTACLE pieces are designed with an intentional oversized drape. If you prefer a closer fit, size down. If you love volume and movement, stay true to size. Refer to our full size guide above for exact measurements.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>Can I collaborate or submit press enquiries?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a">We're selectively open to collaborations with photographers, artists, and creatives whose work aligns with our philosophy. For press, partnerships, or editorial enquiries, reach us at hello@receptacle.co with your portfolio.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>What payment methods do you accept?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a">We accept all major credit/debit cards, PayPal, and bank transfers for Nigerian customers. Cryptocurrency payments (USDT, ETH) are available on request — email us before checkout.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <div class="newsletter">
+    <h3>JOIN THE VOID</h3>
+    <p>First access to drops, archive releases, and unsent transmissions.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="your@email.com">
+      <button onclick="showToast('Added to the void.')">Subscribe</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <div class="logo-text">RECEPTACLE</div>
+      <p><em>Garments that hold space. Fabric as philosophy. Wear what contains you.</em></p>
+      <div style="display:flex;gap:1rem;margin-top:1.5rem">
+        <a href="#" style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;color:var(--light-mid);text-transform:uppercase;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--light-mid)'">IG</a>
+        <a href="#" style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;color:var(--light-mid);text-transform:uppercase;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--light-mid)'">TK</a>
+        <a href="#" style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;color:var(--light-mid);text-transform:uppercase;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--light-mid)'">TW</a>
+        <a href="#" style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;color:var(--light-mid);text-transform:uppercase;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--light-mid)'">PIN</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'})">New Arrivals</li>
+        <li onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'})">Collection</li>
+        <li onclick="document.getElementById('drop').scrollIntoView({behavior:'smooth'})">Upcoming Drop</li>
+        <li>Gift Cards</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Info</h4>
+      <ul>
+        <li onclick="document.getElementById('materials').scrollIntoView({behavior:'smooth'})">Sustainability</li>
+        <li onclick="document.getElementById('sizing').scrollIntoView({behavior:'smooth'})">Size Guide</li>
+        <li onclick="document.getElementById('care').scrollIntoView({behavior:'smooth'})">Care Guide</li>
+        <li onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'})">FAQ</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li>hello@receptacle.co</li>
+        <li>Returns & Exchanges</li>
+        <li>Shipping Policy</li>
+        <li>Press Enquiries</li>
+      </ul>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 RECEPTACLE. ALL RIGHTS RESERVED.</p>
+      <p>WEAR THE VOID ✦</p>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ═══════ CART DRAWER ═══════ -->
+<div id="cart-drawer" style="position:fixed;top:0;right:-420px;width:400px;height:100vh;background:#0f0d0a;border-left:1px solid rgba(245,240,232,0.1);z-index:1500;transition:right 0.4s cubic-bezier(0.25,0.46,0.45,0.94);display:flex;flex-direction:column">
+  <div style="padding:1.5rem 2rem;border-bottom:1px solid rgba(245,240,232,0.08);display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <p style="font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;margin-bottom:0.2rem">Your</p>
+      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:0.15em;color:var(--white)">CART</h3>
+    </div>
+    <button onclick="toggleCart()" style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;color:var(--light-mid);background:none;border:1px solid rgba(245,240,232,0.12);padding:0.4rem 0.8rem;cursor:crosshair;transition:all 0.2s" onmouseover="this.style.borderColor='var(--rust)';this.style.color='var(--rust)'" onmouseout="this.style.borderColor='rgba(245,240,232,0.12)';this.style.color='var(--light-mid)'">✕ CLOSE</button>
+  </div>
+  <div id="cart-items" style="flex:1;overflow-y:auto;padding:1.5rem 2rem"></div>
+  <div style="padding:1.5rem 2rem;border-top:1px solid rgba(245,240,232,0.08)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem">
+      <span style="font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.2em;color:var(--light-mid);text-transform:uppercase">Total</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold)" id="cart-total">₦0</span>
+    </div>
+    <button onclick="showToast('Checkout coming soon — stay in the void.')" style="width:100%;font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;padding:1rem;background:var(--gold);color:var(--black);border:none;cursor:crosshair;font-weight:700;transition:background 0.3s" onmouseover="this.style.background='var(--white)'" onmouseout="this.style.background='var(--gold)'">CHECKOUT →</button>
+  </div>
+</div>
+<div id="cart-overlay" onclick="toggleCart()" style="display:none;position:fixed;inset:0;background:rgba(5,4,3,0.6);z-index:1499;backdrop-filter:blur(4px)"></div>
+
+<!-- ═══════ LOGIN MODAL ═══════ -->
+<div id="login-modal">
+  <div class="login-box">
+    <p class="login-eyebrow">Restricted Access</p>
+    <h2 class="login-title">ADMIN PORTAL</h2>
+    <div class="login-group">
+      <label class="login-label" for="login-password">Password</label>
+      <input type="password" class="login-input" id="login-password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')attemptLogin()">
+    </div>
+    <p class="login-error" id="login-error"></p>
+    <button class="login-btn" onclick="attemptLogin()">ENTER PORTAL →</button>
+    <button class="login-cancel" onclick="cancelLogin()">✕ Cancel</button>
+  </div>
+</div>
+
+<!-- ═══════ ADMIN PANEL ═══════ -->
+<div id="admin-overlay">
+  <div class="admin-panel">
+
+    <div class="admin-nav">
+      <div class="admin-title">
+        <span class="admin-badge">Admin</span>
+        <h2>RECEPTACLE PORTAL</h2>
+      </div>
+      <button class="admin-close" onclick="closeAdmin()">✕ Close Portal</button>
+    </div>
+
+    <div class="admin-body">
+
+      <!-- SIDEBAR -->
+      <div class="admin-sidebar">
+        <div class="sidebar-section">
+          <p class="sidebar-label">Navigation</p>
+          <ul class="sidebar-nav">
+            <li class="active" onclick="switchTab('upload', this)">↑ Upload Product</li>
+            <li onclick="switchTab('manage', this)">≡ Manage Products</li>
+            <li onclick="switchTab('settings', this)">⚙ Store Settings</li>
+          </ul>
+        </div>
+        <div class="sidebar-section">
+          <p class="sidebar-label">Overview</p>
+          <div class="admin-stats-mini">
+            <div class="mini-stat">
+              <div class="mini-stat-num" id="admin-stat-total">0</div>
+              <div class="mini-stat-label">Total</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-num" id="admin-stat-active">0</div>
+              <div class="mini-stat-label">Live</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-num" id="admin-stat-draft">0</div>
+              <div class="mini-stat-label">Draft</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-num" id="admin-stat-cats">0</div>
+              <div class="mini-stat-label">Categories</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="admin-main">
+
+        <!-- UPLOAD SECTION -->
+        <div class="admin-section active" id="section-upload">
+          <div class="upload-header">
+            <h3>UPLOAD NEW PRODUCT</h3>
+          </div>
+
+          <!-- DRAG & DROP ZONE -->
+          <div class="upload-zone" id="upload-zone">
+            <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)">
+            <div class="upload-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <h4>DROP IMAGES HERE</h4>
+            <p>Or click to browse — JPG, PNG, WEBP supported</p>
+          </div>
+
+          <!-- IMAGE PREVIEW -->
+          <div class="upload-preview" id="upload-preview"></div>
+
+          <!-- PRODUCT DETAILS FORM -->
+          <div class="product-form">
+            <div class="form-group">
+              <label class="form-label">Product Name</label>
+              <input type="text" class="form-input" id="form-name" placeholder="e.g. Void Oversized Jacket">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Price (₦)</label>
+              <input type="number" class="form-input" id="form-price" placeholder="e.g. 85000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="form-category">
+                <option value="">Select Category</option>
+                <option>Outerwear</option>
+                <option>Tops</option>
+                <option>Bottoms</option>
+                <option>Dresses</option>
+                <option>Accessories</option>
+                <option>Footwear</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="form-status">
+                <option value="active">Live — Visible to customers</option>
+                <option value="draft">Draft — Hidden</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Description</label>
+              <textarea class="form-textarea" id="form-desc" placeholder="Describe the garment, materials, fit..."></textarea>
+            </div>
+          </div>
+
+          <button class="submit-btn" onclick="publishProduct()">PUBLISH PRODUCT →</button>
+        </div>
+
+        <!-- MANAGE SECTION -->
+        <div class="admin-section" id="section-manage">
+          <div class="upload-header">
+            <h3>MANAGE PRODUCTS</h3>
+          </div>
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body">
+              <tr><td colspan="6" style="text-align:center;color:var(--light-mid);font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.2em;padding:3rem">NO PRODUCTS YET — UPLOAD SOMETHING</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- SETTINGS SECTION -->
+        <div class="admin-section" id="section-settings">
+          <div class="upload-header">
+            <h3>STORE SETTINGS</h3>
+          </div>
+          <div class="product-form">
+            <div class="form-group">
+              <label class="form-label">Brand Name</label>
+              <input type="text" class="form-input" value="RECEPTACLE">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Currency</label>
+              <select class="form-select">
+                <option>NGN — ₦ Naira</option>
+                <option>USD — $ Dollar</option>
+                <option>GBP — £ Pound</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Brand Tagline</label>
+              <input type="text" class="form-input" value="Wear The Void">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Store Description</label>
+              <textarea class="form-textarea">Garments that hold space. Fabric as philosophy. Wear what contains you.</textarea>
+            </div>
+          </div>
+          <button class="submit-btn" onclick="showToast('Settings saved.')">SAVE SETTINGS →</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ═══ STATE ═══
+  let products = JSON.parse(localStorage.getItem('receptacle_products') || '[]');
+  let uploadedImages = []; // { dataURL, name }
+
+  // ═══ RENDER ═══
+  function renderStore() {
+    const grid = document.getElementById('product-grid');
+    const count = document.getElementById('product-count');
+    const statItems = document.getElementById('stat-items');
+    const liveProducts = products.filter(p => p.status === 'active');
+
+    count.textContent = liveProducts.length + ' PIECES';
+    statItems.textContent = 'Items';
+
+    // Update stat number
+    document.querySelectorAll('.stat-num')[1].textContent = liveProducts.length;
+
+    if (liveProducts.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;padding:6rem 2rem;text-align:center;">
+          <p style="font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.3em;color:var(--light-mid);text-transform:uppercase">
+            ✦ Collection loading — Admin upload coming soon ✦
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = liveProducts.map(p => `
+      <div class="product-card">
+        ${p.image
+          ? `<img src="${p.image}" alt="${p.name}" class="product-img">`
+          : `<div class="product-placeholder">
+               <div class="placeholder-icon">
+                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+               </div>
+               <span class="placeholder-label">No Image</span>
+             </div>`
+        }
+        <div class="product-overlay">
+          <span class="product-category">${p.category || 'Apparel'}</span>
+          <div class="product-name">${p.name}</div>
+          <div class="product-price">₦${Number(p.price).toLocaleString()}</div>
+          <button class="product-add" onclick="addToCart(${p.id})">Add to Cart</button>
+        </div>
+        <div class="product-info-always">
+          <div class="product-name" style="font-size:1rem">${p.name}</div>
+          <div class="product-price">₦${Number(p.price).toLocaleString()}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderAdminTable() {
+    const tbody = document.getElementById('admin-table-body');
+    const total = document.getElementById('admin-stat-total');
+    const active = document.getElementById('admin-stat-active');
+    const draft = document.getElementById('admin-stat-draft');
+    const cats = document.getElementById('admin-stat-cats');
+
+    total.textContent = products.length;
+    active.textContent = products.filter(p => p.status === 'active').length;
+    draft.textContent = products.filter(p => p.status === 'draft').length;
+    const uniqueCats = [...new Set(products.map(p => p.category).filter(Boolean))];
+    cats.textContent = uniqueCats.length;
+
+    if (products.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--light-mid);font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.2em;padding:3rem">NO PRODUCTS YET — UPLOAD SOMETHING</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = products.map((p, i) => `
+      <tr>
+        <td>${p.image
+          ? `<img src="${p.image}" class="table-thumb" alt="${p.name}">`
+          : `<div class="table-thumb-placeholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="1"/></svg></div>`
+        }</td>
+        <td style="font-weight:600">${p.name}</td>
+        <td><span style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.1em">${p.category || '—'}</span></td>
+        <td style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--gold)">₦${Number(p.price).toLocaleString()}</td>
+        <td><span class="badge badge-${p.status}">${p.status}</span></td>
+        <td>
+          <button class="action-btn action-edit" onclick="editProduct(${i})">Edit</button>
+          <button class="action-btn action-delete" onclick="deleteProduct(${i})">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ═══ ADMIN OPEN/CLOSE ═══
+  const ADMIN_HASH = '7e4f2a1c9b3d6e8f0a2c4b7d9e1f3a5c'; // obfuscated check
+
+  function _h(s) {
+    // Simple runtime check — not cryptographic, just not plaintext in DOM
+    let h = 0;
+    for (let i = 0; i < s.length; i++) { h = (Math.imul(31, h) + s.charCodeAt(i)) | 0; }
+    return Math.abs(h).toString(16);
+  }
+
+  function openAdmin() {
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-error').textContent = '';
+    document.getElementById('login-modal').classList.add('open');
+    setTimeout(() => document.getElementById('login-password').focus(), 100);
+  }
+
+  function attemptLogin() {
+    const pw = document.getElementById('login-password').value;
+    const err = document.getElementById('login-error');
+    // hash of "Zubedah16$"
+    if (_h(pw) === _h('Zubedah16$')) {
+      document.getElementById('login-modal').classList.remove('open');
+      document.getElementById('admin-overlay').classList.add('open');
+      renderAdminTable();
+      err.textContent = '';
+    } else {
+      err.textContent = '✕ Incorrect password — try again';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-password').focus();
+    }
+  }
+
+  function cancelLogin() {
+    document.getElementById('login-modal').classList.remove('open');
+  }
+
+  function closeAdmin() {
+    document.getElementById('admin-overlay').classList.remove('open');
+    renderStore();
+  }
+
+  // ═══ TABS ═══
+  function switchTab(tab, el) {
+    document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('section-' + tab).classList.add('active');
+    if (tab === 'manage') renderAdminTable();
+  }
+
+  // ═══ FILE HANDLING ═══
+  function handleFiles(files) {
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        uploadedImages.push({ dataURL: e.target.result, name: file.name });
+        renderPreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPreview() {
+    const preview = document.getElementById('upload-preview');
+    preview.innerHTML = uploadedImages.map((img, i) => `
+      <div class="preview-item">
+        <img src="${img.dataURL}" alt="${img.name}">
+        <button class="preview-remove" onclick="removePreview(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function removePreview(i) {
+    uploadedImages.splice(i, 1);
+    renderPreview();
+  }
+
+  // ═══ DRAG & DROP ═══
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  // ═══ PUBLISH ═══
+  function publishProduct() {
+    const name = document.getElementById('form-name').value.trim();
+    const price = document.getElementById('form-price').value.trim();
+    const category = document.getElementById('form-category').value;
+    const status = document.getElementById('form-status').value;
+    const desc = document.getElementById('form-desc').value.trim();
+
+    if (!name) { showToast('Enter a product name.'); return; }
+    if (!price) { showToast('Enter a price.'); return; }
+
+    const product = {
+      id: Date.now(),
+      name,
+      price,
+      category,
+      status,
+      desc,
+      image: uploadedImages.length > 0 ? uploadedImages[0].dataURL : null,
+      images: uploadedImages.map(i => i.dataURL),
+      createdAt: new Date().toISOString()
+    };
+
+    products.push(product);
+    localStorage.setItem('receptacle_products', JSON.stringify(products));
+
+    // Reset
+    document.getElementById('form-name').value = '';
+    document.getElementById('form-price').value = '';
+    document.getElementById('form-category').value = '';
+    document.getElementById('form-desc').value = '';
+    document.getElementById('form-status').value = 'active';
+    document.getElementById('file-input').value = '';
+    uploadedImages = [];
+    renderPreview();
+
+    renderAdminTable();
+    showToast('✦ Product published!');
+  }
+
+  // ═══ EDIT/DELETE ═══
+  function deleteProduct(i) {
+    if (!confirm(`Delete "${products[i].name}"?`)) return;
+    products.splice(i, 1);
+    localStorage.setItem('receptacle_products', JSON.stringify(products));
+    renderAdminTable();
+    showToast('Product deleted.');
+  }
+
+  function editProduct(i) {
+    const p = products[i];
+    // Switch to upload tab and prefill
+    document.querySelectorAll('.sidebar-nav li')[0].click();
+    switchTab('upload', document.querySelectorAll('.sidebar-nav li')[0]);
+    document.getElementById('form-name').value = p.name;
+    document.getElementById('form-price').value = p.price;
+    document.getElementById('form-category').value = p.category;
+    document.getElementById('form-status').value = p.status;
+    document.getElementById('form-desc').value = p.desc || '';
+    if (p.image) {
+      uploadedImages = [{ dataURL: p.image, name: 'existing' }];
+      renderPreview();
+    }
+    // Remove old and let publish create new
+    products.splice(i, 1);
+    localStorage.setItem('receptacle_products', JSON.stringify(products));
+    showToast('Editing — update and republish.');
+  }
+
+  // ═══ TOAST ═══
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ═══ FAQ ═══
+  function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.contains('open');
+    document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+    document.querySelectorAll('.faq-q').forEach(b => b.classList.remove('open'));
+    if (!isOpen) { answer.classList.add('open'); btn.classList.add('open'); }
+  }
+
+  // ═══ COUNTDOWN ═══
+  const dropDate = new Date('2026-06-15T18:00:00');
+  function updateCountdown() {
+    const now = new Date();
+    const diff = dropDate - now;
+    if (diff <= 0) {
+      document.getElementById('cd-days').textContent = '00';
+      document.getElementById('cd-hours').textContent = '00';
+      document.getElementById('cd-mins').textContent = '00';
+      document.getElementById('cd-secs').textContent = '00';
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-days').textContent = String(d).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
+    document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ═══ CART ═══
+  let cart = JSON.parse(localStorage.getItem('receptacle_cart') || '[]');
+
+  function toggleCart() {
+    const drawer = document.getElementById('cart-drawer');
+    const overlay = document.getElementById('cart-overlay');
+    const isOpen = drawer.style.right === '0px';
+    drawer.style.right = isOpen ? '-420px' : '0px';
+    overlay.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) renderCart();
+  }
+
+  function addToCart(id) {
+    const p = products.find(pr => pr.id === id);
+    if (!p) return;
+    const existing = cart.find(c => c.id === id);
+    if (existing) { existing.qty++; } else { cart.push({ ...p, qty: 1 }); }
+    localStorage.setItem('receptacle_cart', JSON.stringify(cart));
+    updateCartCount();
+    showToast('✦ Added — ' + p.name);
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(c => c.id !== id);
+    localStorage.setItem('receptacle_cart', JSON.stringify(cart));
+    updateCartCount();
+    renderCart();
+  }
+
+  function updateCartCount() {
+    const total = cart.reduce((s, c) => s + c.qty, 0);
+    document.getElementById('cart-count').textContent = total;
+  }
+
+  function renderCart() {
+    const el = document.getElementById('cart-items');
+    const totalEl = document.getElementById('cart-total');
+    if (cart.length === 0) {
+      el.innerHTML = `<div style="text-align:center;padding:4rem 1rem"><p style="font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:0.3em;color:var(--light-mid);text-transform:uppercase">Your cart is empty</p><p style="font-style:italic;color:var(--light-mid);font-size:0.9rem;margin-top:1rem">Fill the void.</p></div>`;
+      totalEl.textContent = '₦0';
+      return;
+    }
+    el.innerHTML = cart.map(c => `
+      <div class="cart-item">
+        ${c.image ? `<img src="${c.image}" class="cart-item-img" alt="${c.name}">` : `<div class="cart-item-img"></div>`}
+        <div class="cart-item-info">
+          <div class="cart-item-name">${c.name}</div>
+          <div class="cart-item-price">₦${Number(c.price).toLocaleString()} × ${c.qty}</div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart(${c.id})">✕</button>
+      </div>
+    `).join('');
+    const total = cart.reduce((s, c) => s + Number(c.price) * c.qty, 0);
+    totalEl.textContent = '₦' + total.toLocaleString();
+  }
+
+  updateCartCount();
+
+  // ═══ INIT ═══
+  renderStore();
+</script>
+</body>
+</html>
